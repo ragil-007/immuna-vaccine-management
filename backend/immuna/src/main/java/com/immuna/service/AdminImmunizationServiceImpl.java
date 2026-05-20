@@ -2,6 +2,7 @@ package com.immuna.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +38,10 @@ public class AdminImmunizationServiceImpl implements AdminImmunizationService {
 	@Transactional
 	public ImmunizationResponse addRecord(ImmunizationRequest request) {
 		User user = userRepository.findById(request.getUserId())
-		        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+				.orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
 		if (user.getRole() != Role.USER) {
-		    throw new InvalidUserRoleException("Immunization records can only be added for normal users.");
+			throw new InvalidUserRoleException("Immunization records can only be added for normal users.");
 		}
 
 		VaccineSchedule schedule = scheduleRepository.findById(request.getScheduleId())
@@ -61,10 +62,7 @@ public class AdminImmunizationServiceImpl implements AdminImmunizationService {
 
 	@Override
 	public List<ImmunizationResponse> getAllRecords() {
-		 return recordRepository.findAll()
-	                .stream()
-	                .map(this::mapToResponse)
-	                .collect(Collectors.toList());
+		return recordRepository.findAll().stream().map(this::mapToResponse).collect(Collectors.toList());
 	}
 
 	@Override
@@ -86,82 +84,78 @@ public class AdminImmunizationServiceImpl implements AdminImmunizationService {
 
 	private LocalDate calculateNextDue(User user, VaccineSchedule schedule, LocalDate dateTaken) {
 
-		if (!schedule.getIsRecurring()) {
-			return dateTaken.plusDays(schedule.getGapDays());
-		}
+		// Find next dose
+		Optional<VaccineSchedule> nextSchedule = scheduleRepository.findByVaccineAndDoseNo(schedule.getVaccine(),
+				schedule.getDoseNo() + 1);
 
-		long count = recordRepository.countByUserAndSchedule(user, schedule);
-
-		if (schedule.getMaxOccurrences() == 0) {
-			return dateTaken.plusDays(schedule.getGapDays());
-		}
-
-		if (count >= schedule.getMaxOccurrences()) {
+		// No next dose exists
+		if (nextSchedule.isEmpty()) {
 			return null;
 		}
 
-		return dateTaken.plusDays(schedule.getGapDays());
+		VaccineSchedule next = nextSchedule.get();
+
+		// Calculate using NEXT dose gap
+		return dateTaken.plusDays(next.getGapDays());
 	}
 
 	private ImmunizationResponse mapToResponse(ImmunizationRecord record) {
 
 		ImmunizationResponse response = new ImmunizationResponse();
 
-	    response.setRecordId(record.getRecordId());
+		response.setRecordId(record.getRecordId());
 
-	    // 🔥 THESE ARE MISSING IN YOUR CURRENT VERSION
-	    response.setUserId(record.getUser().getUserId());
-	    response.setScheduleId(record.getSchedule().getScheduleId());
+		// 🔥 THESE ARE MISSING IN YOUR CURRENT VERSION
+		response.setUserId(record.getUser().getUserId());
+		response.setScheduleId(record.getSchedule().getScheduleId());
 
-	    response.setUserName(record.getUser().getFullName());
-	    response.setVaccineName(
-	        record.getSchedule().getVaccine().getVaccineName()
-	    );
-	    response.setDoseNo(record.getSchedule().getDoseNo());
+		response.setUserName(record.getUser().getFullName());
+		response.setVaccineName(record.getSchedule().getVaccine().getVaccineName());
+		response.setDoseNo(record.getSchedule().getDoseNo());
 
-	    response.setDateTaken(record.getDateTaken());
-	    response.setNextDueDate(record.getNextDueDate());
+		response.setDateTaken(record.getDateTaken());
+		response.setNextDueDate(record.getNextDueDate());
 
-	    return response;
+		return response;
 	}
 
 	@Override
 	public ImmunizationResponse getById(Long recordId) {
 		ImmunizationRecord record = recordRepository.findById(recordId)
-	            .orElseThrow(() -> new RuntimeException("Record not found"));
+				.orElseThrow(() -> new RuntimeException("Record not found"));
 
-	    return mapToResponse(record);
+		return mapToResponse(record);
 	}
 
 	@Override
 	@Transactional
 	public ImmunizationResponse updateRecord(Long recordId, ImmunizationRequest request) {
 
-	    ImmunizationRecord record = recordRepository.findById(recordId)
-	            .orElseThrow(() -> new ResourceNotFoundException("Record not found"));
+		ImmunizationRecord record = recordRepository.findById(recordId)
+				.orElseThrow(() -> new ResourceNotFoundException("Record not found"));
 
-	    User user = userRepository.findById(request.getUserId())
-	            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+		User user = userRepository.findById(request.getUserId())
+				.orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-	    if (user.getRole() != Role.USER) {
-	        throw new InvalidUserRoleException("Immunization records can only be updated for normal users.");
-	    }
+		if (user.getRole() != Role.USER) {
+			throw new InvalidUserRoleException("Immunization records can only be updated for normal users.");
+		}
 
-	    VaccineSchedule schedule = scheduleRepository.findById(request.getScheduleId())
-	            .orElseThrow(() -> new ResourceNotFoundException("Schedule not found"));
+		VaccineSchedule schedule = scheduleRepository.findById(request.getScheduleId())
+				.orElseThrow(() -> new ResourceNotFoundException("Schedule not found"));
 
-	    // Recalculate next due date using your existing logic
-	    LocalDate nextDue = calculateNextDue(user, schedule, request.getDateTaken());
+		// Recalculate next due date using your existing logic
+		LocalDate nextDue = calculateNextDue(user, schedule, request.getDateTaken());
 
-	    // Update fields
-	    record.setUser(user);
-	    record.setSchedule(schedule);
-	    record.setDateTaken(request.getDateTaken());
-	    record.setNextDueDate(nextDue);
+		// Update fields
+		record.setUser(user);
+		record.setSchedule(schedule);
+		record.setDateTaken(request.getDateTaken());
+		record.setNextDueDate(nextDue);
 
-	    recordRepository.save(record);
+		recordRepository.save(record);
 
-	    return mapToResponse(record);
+		return mapToResponse(record);
 	}
 
 }
