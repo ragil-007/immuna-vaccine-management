@@ -82,21 +82,50 @@ public class AdminImmunizationServiceImpl implements AdminImmunizationService {
 
 	}
 
-	private LocalDate calculateNextDue(User user, VaccineSchedule schedule, LocalDate dateTaken) {
+	private LocalDate calculateNextDue(
+	        User user,
+	        VaccineSchedule schedule,
+	        LocalDate dateTaken
+	) {
 
-		// Find next dose
-		Optional<VaccineSchedule> nextSchedule = scheduleRepository.findByVaccineAndDoseNo(schedule.getVaccine(),
-				schedule.getDoseNo() + 1);
+	    // =========================================
+	    // RECURRING / BOOSTER VACCINES
+	    // =========================================
+	    if (schedule.getIsRecurring()) {
 
-		// No next dose exists
-		if (nextSchedule.isEmpty()) {
-			return null;
-		}
+	        long count =
+	                recordRepository.countByUserAndSchedule(user, schedule);
 
-		VaccineSchedule next = nextSchedule.get();
+	        // Unlimited recurrence
+	        if (schedule.getMaxOccurrences() == 0) {
+	            return dateTaken.plusDays(schedule.getGapDays());
+	        }
 
-		// Calculate using NEXT dose gap
-		return dateTaken.plusDays(next.getGapDays());
+	        // Reached max recurrence
+	        if (count >= schedule.getMaxOccurrences()) {
+	            return null;
+	        }
+
+	        return dateTaken.plusDays(schedule.getGapDays());
+	    }
+
+	    // =========================================
+	    // PRIMARY SERIES VACCINES
+	    // =========================================
+	    Optional<VaccineSchedule> nextSchedule =
+	            scheduleRepository.findByVaccineAndDoseNo(
+	                    schedule.getVaccine(),
+	                    schedule.getDoseNo() + 1
+	            );
+
+	    // No next dose
+	    if (nextSchedule.isEmpty()) {
+	        return null;
+	    }
+
+	    VaccineSchedule next = nextSchedule.get();
+
+	    return dateTaken.plusDays(next.getGapDays());
 	}
 
 	private ImmunizationResponse mapToResponse(ImmunizationRecord record) {
