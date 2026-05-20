@@ -16,67 +16,143 @@ import com.immuna.repository.ImmunizationRecordRepository;
 import com.immuna.repository.UserRepository;
 
 @Service
-public class UserDashboardServiceImpl implements UserDashboardService{
-	
-	@Autowired
-	private UserRepository userRepository;
-	
-	@Autowired
+public class UserDashboardServiceImpl implements UserDashboardService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private ImmunizationRecordRepository recordRepository;
 
-	@Override
-	public DashboardResponse getDashboard(Long userId) {
-		User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    @Override
+    public DashboardResponse getDashboard(Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
         List<ImmunizationRecord> records =
                 recordRepository.findByUser(user);
 
         if (records.isEmpty()) {
-            throw new ResourceNotFoundException("No vaccination records found");
+            throw new ResourceNotFoundException(
+                    "No vaccination records found"
+            );
         }
 
         LocalDate today = LocalDate.now();
 
-        // Find next upcoming dose
+        // =====================================================
+        // FIND NEXT ACTIVE VACCINATION
+        // Ignore completed records (nextDueDate == null)
+        // =====================================================
+
         ImmunizationRecord nextRecord = records.stream()
+
+                // Ignore completed vaccines
                 .filter(r -> r.getNextDueDate() != null)
-                .min(Comparator.comparing(ImmunizationRecord::getNextDueDate))
+
+                // Get nearest due date
+                .min(Comparator.comparing(
+                        ImmunizationRecord::getNextDueDate
+                ))
+
                 .orElse(null);
 
         String status = null;
         long daysRemaining = 0;
 
+        // =====================================================
+        // STATUS CALCULATION
+        // =====================================================
+
         if (nextRecord != null) {
 
             LocalDate nextDate = nextRecord.getNextDueDate();
 
-            daysRemaining = ChronoUnit.DAYS.between(today, nextDate);
+            daysRemaining =
+                    ChronoUnit.DAYS.between(today, nextDate);
 
             if (nextDate.isBefore(today)) {
+
                 status = "OVERDUE";
+
                 daysRemaining = Math.abs(daysRemaining);
+
+            } else if (nextDate.isEqual(today)) {
+
+                status = "DUE";
+
             } else {
+
                 status = "UPCOMING";
             }
+
+        } else {
+
+            // All vaccinations completed
+            status = "COMPLETED";
         }
 
-        // Find most recent vaccination
+        // =====================================================
+        // MOST RECENT VACCINATION
+        // =====================================================
+
         ImmunizationRecord recentRecord = records.stream()
-                .max(Comparator.comparing(ImmunizationRecord::getDateTaken))
+
+                .max(Comparator.comparing(
+                        ImmunizationRecord::getDateTaken
+                ))
+
                 .orElse(null);
 
-        return new DashboardResponse(
-                nextRecord != null ? nextRecord.getSchedule().getVaccine().getVaccineName() : null,
-                nextRecord != null ? nextRecord.getSchedule().getDoseNo() : null,
-                nextRecord != null ? nextRecord.getSchedule().getDoseType().name() : null,
-                nextRecord != null ? nextRecord.getNextDueDate() : null,
-                daysRemaining,
-                status,
-                recentRecord != null ? recentRecord.getSchedule().getVaccine().getVaccineName() : null,
-                recentRecord != null ? recentRecord.getSchedule().getDoseNo() : null,
-                recentRecord != null ? recentRecord.getDateTaken() : null
-        );
-	}
+        // =====================================================
+        // RESPONSE
+        // =====================================================
 
+        return new DashboardResponse(
+
+                // Next vaccination info
+                nextRecord != null
+                        ? nextRecord.getSchedule()
+                                .getVaccine()
+                                .getVaccineName()
+                        : null,
+
+                nextRecord != null
+                        ? nextRecord.getSchedule()
+                                .getDoseNo()
+                        : null,
+
+                nextRecord != null
+                        ? nextRecord.getSchedule()
+                                .getDoseType()
+                                .name()
+                        : null,
+
+                nextRecord != null
+                        ? nextRecord.getNextDueDate()
+                        : null,
+
+                daysRemaining,
+
+                status,
+
+                // Recent vaccination info
+                recentRecord != null
+                        ? recentRecord.getSchedule()
+                                .getVaccine()
+                                .getVaccineName()
+                        : null,
+
+                recentRecord != null
+                        ? recentRecord.getSchedule()
+                                .getDoseNo()
+                        : null,
+
+                recentRecord != null
+                        ? recentRecord.getDateTaken()
+                        : null
+        );
+    }
 }
