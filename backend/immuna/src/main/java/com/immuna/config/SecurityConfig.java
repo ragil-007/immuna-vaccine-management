@@ -26,57 +26,64 @@ public class SecurityConfig {
 
 	private final JwtAuthenticationFilter jwtFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtFilter) {
-        this.jwtFilter = jwtFilter;
-    }
+	public SecurityConfig(JwtAuthenticationFilter jwtFilter) {
+		this.jwtFilter = jwtFilter;
+	}
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-    	http
-        .cors(cors -> {})  // ✅ Modern CORS enable
-        .csrf(csrf -> csrf.disable())
-        .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
-                .anyRequest().authenticated()
-        )
-        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-        .httpBasic(httpBasic -> httpBasic.disable())
-        .formLogin(form -> form.disable());
+		http.cors(cors -> {
+		}).csrf(csrf -> csrf.disable())
 
-    return http.build();
-    }
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-    
-    @Bean
-    public AuthenticationEntryPoint authenticationEntryPoint() {
-        return (request, response, authException) -> {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Unauthorized - Invalid or Missing Token");
-        };
-    }
-    
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+				.exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint()))
 
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
+						.requestMatchers("/api/admin/**").hasRole("ADMIN").requestMatchers("/api/user/**")
+						.hasAnyRole("USER", "ADMIN").anyRequest().authenticated())
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
 
-        return source;
-    }
+				.httpBasic(httpBasic -> httpBasic.disable())
 
+				.formLogin(form -> form.disable());
+
+		return http.build();
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public AuthenticationEntryPoint authenticationEntryPoint() {
+		return (request, response, authException) -> {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.getWriter().write("Unauthorized - Invalid or Missing Token");
+		};
+	}
+
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+
+		CorsConfiguration configuration = new CorsConfiguration();
+
+		configuration
+				.setAllowedOrigins(List.of("http://localhost:5173", "https://immuna-vaccine-management.vercel.app"));
+
+		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+		configuration.setAllowedHeaders(List.of("*"));
+
+		configuration.setAllowCredentials(true);
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+		source.registerCorsConfiguration("/**", configuration);
+
+		return source;
+	}
 }
