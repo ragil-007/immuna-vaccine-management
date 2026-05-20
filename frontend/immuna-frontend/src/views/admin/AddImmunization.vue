@@ -109,8 +109,8 @@ async function loadDropdowns() {
   const headers = { Authorization: `Bearer ${token}` }
 
   const [usersRes, scheduleRes] = await Promise.all([
-    axios.get("http://localhost:8080/api/admin/users/normal", { headers }),
-    axios.get("http://localhost:8080/api/admin/schedules", { headers })
+    axios.get("https://immuna-vaccine-management.onrender.com/api/admin/users/normal", { headers }),
+    axios.get("https://immuna-vaccine-management.onrender.com/api/admin/schedules", { headers })
   ])
 
   users.value = usersRes.data
@@ -152,7 +152,7 @@ function selectSchedule(schedule) {
 
 async function save() {
   await axios.post(
-    "http://localhost:8080/api/admin/immunizations",
+    "https://immuna-vaccine-management.onrender.com/api/admin/immunizations",
     {
       userId: userId.value,
       scheduleId: scheduleId.value,

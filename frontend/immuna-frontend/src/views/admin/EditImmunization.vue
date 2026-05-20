@@ -111,10 +111,10 @@ async function loadData() {
   const headers = { Authorization: `Bearer ${token}` }
 
   const [usersRes, scheduleRes, recordRes] = await Promise.all([
-    axios.get("http://localhost:8080/api/admin/users/normal", { headers }),
-    axios.get("http://localhost:8080/api/admin/schedules", { headers }),
+    axios.get("https://immuna-vaccine-management.onrender.com/api/admin/users/normal", { headers }),
+    axios.get("https://immuna-vaccine-management.onrender.com/api/admin/schedules", { headers }),
     axios.get(
-      `http://localhost:8080/api/admin/immunizations/${recordId}`,
+      `https://immuna-vaccine-management.onrender.com/api/admin/immunizations/${recordId}`,
       { headers }
     )
   ])
@@ -185,7 +185,7 @@ async function update() {
   const headers = { Authorization: `Bearer ${token}` }
 
   await axios.put(
-    `http://localhost:8080/api/admin/immunizations/${recordId}`,
+    `https://immuna-vaccine-management.onrender.com/api/admin/immunizations/${recordId}`,
     {
       userId: Number(userId.value),
       scheduleId: Number(scheduleId.value),

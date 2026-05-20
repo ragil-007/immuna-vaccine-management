@@ -114,13 +114,13 @@ async function loadData() {
   const headers = { Authorization: `Bearer ${token}` }
 
   const vaccineRes = await axios.get(
-    "http://localhost:8080/api/admin/vaccines",
+    "https://immuna-vaccine-management.onrender.com/api/admin/vaccines",
     { headers }
   )
   vaccines.value = vaccineRes.data
 
   const scheduleRes = await axios.get(
-    `http://localhost:8080/api/admin/schedules`,
+    `https://immuna-vaccine-management.onrender.com/api/admin/schedules`,
     { headers }
   )
 
@@ -142,7 +142,7 @@ async function update() {
   if (!isRecurring.value) maxOccurrences.value = 1
 
   await axios.put(
-    `http://localhost:8080/api/admin/schedules/${scheduleId}`,
+    `https://immuna-vaccine-management.onrender.com/api/admin/schedules/${scheduleId}`,
     {
       vaccineId: vaccineId.value,
       doseNo: doseNo.value,

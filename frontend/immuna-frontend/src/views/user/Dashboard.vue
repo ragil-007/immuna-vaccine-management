@@ -75,7 +75,7 @@ const token = localStorage.getItem("token")
 async function loadDashboard() {
   try {
     const res = await axios.get(
-      "http://localhost:8080/api/user/dashboard",
+      "https://immuna-vaccine-management.onrender.com/api/user/dashboard",
       {
         headers: {
           Authorization: `Bearer ${token}`

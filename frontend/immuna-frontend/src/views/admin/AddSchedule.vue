@@ -111,7 +111,7 @@ function selectVaccine(v) {
 
 async function loadVaccines() {
   const res = await axios.get(
-    "http://localhost:8080/api/admin/vaccines",
+    "https://immuna-vaccine-management.onrender.com/api/admin/vaccines",
     { headers: { Authorization: `Bearer ${token}` } }
   )
   vaccines.value = res.data
@@ -122,7 +122,7 @@ async function save() {
   if (!isRecurring.value) maxOccurrences.value = 1
 
   await axios.post(
-    "http://localhost:8080/api/admin/schedules",
+    "https://immuna-vaccine-management.onrender.com/api/admin/schedules",
     {
       vaccineId: vaccineId.value,
       doseNo: doseNo.value,

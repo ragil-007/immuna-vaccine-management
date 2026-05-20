@@ -81,7 +81,7 @@ async function handleRegister() {
   }
 
   try {
-    await axios.post("http://localhost:8080/api/auth/register", {
+    await axios.post("https://immuna-vaccine-management.onrender.com/api/auth/register", {
       fullName: fullName.value,
       dob: dob.value,
       email: email.value,

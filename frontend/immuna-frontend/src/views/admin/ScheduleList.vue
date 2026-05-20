@@ -71,7 +71,7 @@ const schedules = ref([])
 
 async function loadSchedules() {
   const res = await axios.get(
-    "http://localhost:8080/api/admin/schedules",
+    "https://immuna-vaccine-management.onrender.com/api/admin/schedules",
     { headers: { Authorization: `Bearer ${token}` } }
   )
   schedules.value = res.data
@@ -89,7 +89,7 @@ async function remove(id) {
   if (!confirm("Are you sure you want to delete this schedule?")) return
 
   await axios.delete(
-    `http://localhost:8080/api/admin/schedules/${id}`,
+    `https://immuna-vaccine-management.onrender.com/api/admin/schedules/${id}`,
     { headers: { Authorization: `Bearer ${token}` } }
   )
 

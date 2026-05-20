@@ -64,7 +64,7 @@ const token = localStorage.getItem("token")
 
 async function loadRecords() {
   const res = await axios.get(
-    "http://localhost:8080/api/admin/immunizations",
+    "https://immuna-vaccine-management.onrender.com/api/admin/immunizations",
     {
       headers: { Authorization: `Bearer ${token}` }
     }
@@ -77,7 +77,7 @@ async function deleteRecord(id) {
   if (!confirm("Are you sure?")) return
 
   await axios.delete(
-    `http://localhost:8080/api/admin/immunizations/${id}`,
+    `https://immuna-vaccine-management.onrender.com/api/admin/immunizations/${id}`,
     {
       headers: { Authorization: `Bearer ${token}` }
     }

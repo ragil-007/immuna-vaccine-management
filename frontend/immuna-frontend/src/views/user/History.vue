@@ -107,7 +107,7 @@ async function loadData() {
 
   try {
     const res = await axios.get(
-      `http://localhost:8080/api/user/immunizations/${activeTab.value}`,
+      `https://immuna-vaccine-management.onrender.com/api/user/immunizations/${activeTab.value}`,
       {
         headers: { Authorization: `Bearer ${token}` }
       }
