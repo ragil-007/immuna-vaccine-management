@@ -43,21 +43,23 @@ public class UserDashboardServiceImpl implements UserDashboardService {
         LocalDate today = LocalDate.now();
 
         // =====================================================
-        // FIND NEXT ACTIVE VACCINATION
-        // Ignore completed records (nextDueDate == null)
+        // MOST RECENT VACCINATION
         // =====================================================
 
-        ImmunizationRecord nextRecord = records.stream()
+        ImmunizationRecord recentRecord = records.stream()
 
-                // Ignore completed vaccines
-                .filter(r -> r.getNextDueDate() != null)
-
-                // Get nearest due date
-                .min(Comparator.comparing(
-                        ImmunizationRecord::getNextDueDate
+                .max(Comparator.comparing(
+                        ImmunizationRecord::getDateTaken
                 ))
 
                 .orElse(null);
+
+        // =====================================================
+        // CURRENT ACTIVE RECORD
+        // Dashboard should ONLY use latest vaccination
+        // =====================================================
+
+        ImmunizationRecord nextRecord = recentRecord;
 
         String status = null;
         long daysRemaining = 0;
@@ -66,9 +68,11 @@ public class UserDashboardServiceImpl implements UserDashboardService {
         // STATUS CALCULATION
         // =====================================================
 
-        if (nextRecord != null) {
+        if (nextRecord != null &&
+                nextRecord.getNextDueDate() != null) {
 
-            LocalDate nextDate = nextRecord.getNextDueDate();
+            LocalDate nextDate =
+                    nextRecord.getNextDueDate();
 
             daysRemaining =
                     ChronoUnit.DAYS.between(today, nextDate);
@@ -90,21 +94,9 @@ public class UserDashboardServiceImpl implements UserDashboardService {
 
         } else {
 
-            // All vaccinations completed
+            // Vaccine schedule completed
             status = "COMPLETED";
         }
-
-        // =====================================================
-        // MOST RECENT VACCINATION
-        // =====================================================
-
-        ImmunizationRecord recentRecord = records.stream()
-
-                .max(Comparator.comparing(
-                        ImmunizationRecord::getDateTaken
-                ))
-
-                .orElse(null);
 
         // =====================================================
         // RESPONSE
@@ -112,7 +104,7 @@ public class UserDashboardServiceImpl implements UserDashboardService {
 
         return new DashboardResponse(
 
-                // Next vaccination info
+                // Current vaccination info
                 nextRecord != null
                         ? nextRecord.getSchedule()
                                 .getVaccine()
@@ -138,7 +130,7 @@ public class UserDashboardServiceImpl implements UserDashboardService {
 
                 status,
 
-                // Recent vaccination info
+                // Most recent vaccination info
                 recentRecord != null
                         ? recentRecord.getSchedule()
                                 .getVaccine()
