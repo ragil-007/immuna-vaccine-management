@@ -1,61 +1,104 @@
 # 💉 Immuna – Digital Immunization Management System
 
-Immuna is a full-stack vaccine management platform that tracks vaccination history and intelligently calculates upcoming and overdue doses.
+Immuna is a full-stack digital vaccine management platform that helps users track immunization history, monitor upcoming doses, and manage vaccine schedules intelligently.
+
+The system supports secure authentication, role-based access control, vaccine scheduling, and immunization record management through a modern responsive UI.
 
 ---
 
-## 🚀 Tech Stack
+# 🌐 Live Demo
 
-### Backend
+## Frontend
+https://immuna-vaccine-management.vercel.app
+
+## Backend API
+https://immuna-vaccine-management.onrender.com
+
+---
+
+# 🚀 Tech Stack
+
+## Backend
 - Java 17
 - Spring Boot
-- Spring Security (JWT)
-- JPA / Hibernate
+- Spring Security (JWT Authentication)
+- Spring Data JPA / Hibernate
 - MySQL
+- Maven
+- Docker
 
-### Frontend
+## Frontend
 - Vue.js 3
 - Vue Router
 - Axios
 - Vite
 
-### Database
-- MySQL
+## Database
+- MySQL (Aiven Cloud)
+
+## Deployment
+- Render (Backend)
+- Vercel (Frontend)
+- Aiven MySQL (Database)
 
 ---
 
-## 📂 Project Structure
+# 📂 Project Structure
 
-```
+```text
 immuna-vaccine-management
 │
-├── backend/      → Spring Boot application
-├── frontend/     → Vue.js application
-├── database/     → SQL dump file
+├── backend/              → Spring Boot backend
+├── frontend/             → Vue.js frontend
+├── database/             → SQL dump / schema
 └── README.md
 ```
 
 ---
 
-## 🔐 Demo Credentials
+# ✨ Features
 
-### 👨‍💼 Admin
+## 👨‍💼 Admin Features
+- Manage diseases
+- Manage vaccines
+- Configure vaccine dose schedules
+- Manage users
+- Manage immunization records
+- Track vaccination schedules
+
+## 👤 User Features
+- User registration & login
+- Secure JWT authentication
+- View vaccination history
+- Track upcoming doses
+- Overdue vaccination alerts
+- Explore vaccine library
+
+---
+
+# 🔐 Demo Credentials
+
+## 👨‍💼 Admin
 Email: admin@immuna.com  
-Password: admin123  
+Password: admin123
 
-### 👤 User
+---
+
+## 👤 User
 Email: ragil@gmail.com  
-Password: ragil123  
+Password: ragil123
 
-### 👤 User
+---
+
+## 👤 User
 Email: john@gmail.com  
 Password: 123456
 
 ---
 
-## 🛠️ Setup Guide
+# 🛠️ Local Setup Guide
 
-### 1️⃣ Clone Repository
+## 1️⃣ Clone Repository
 
 ```bash
 git clone https://github.com/ragil-007/immuna-vaccine-management.git
@@ -64,77 +107,139 @@ cd immuna-vaccine-management
 
 ---
 
-### 2️⃣ Setup Database
+# 🗄️ Backend Setup
 
-Create database:
+## 2️⃣ Configure Database
+
+Create MySQL database:
 
 ```sql
 CREATE DATABASE immuna;
 ```
 
-Import:
+Import SQL file from:
 
-```
+```text
 database/immuna.sql
+```
+
+Update database configuration inside:
+
+```text
+backend/immuna/src/main/resources/application.properties
 ```
 
 ---
 
-### 3️⃣ Run Backend
-
-Update database credentials in:
-
-```
-backend/src/main/resources/application.properties
-```
-
-Then:
+## 3️⃣ Run Backend
 
 ```bash
-cd backend
+cd backend/immuna
 mvn spring-boot:run
 ```
 
-Runs at:
+Backend runs at:
 
-```
+```text
 http://localhost:8080
 ```
 
 ---
 
-### 4️⃣ Run Frontend
+# 🎨 Frontend Setup
+
+## 4️⃣ Install Dependencies
 
 ```bash
-cd frontend
+cd frontend/immuna-frontend
 npm install
+```
+
+---
+
+## 5️⃣ Configure API URL
+
+Create `.env` file inside:
+
+```text
+frontend/immuna-frontend
+```
+
+Add:
+
+```env
+VITE_API_URL=http://localhost:8080/api
+```
+
+---
+
+## 6️⃣ Run Frontend
+
+```bash
 npm run dev
 ```
 
-Runs at:
+Frontend runs at:
 
-```
+```text
 http://localhost:5173
 ```
 
 ---
 
-## ✨ Features
+# 🔒 Security Features
 
-### Admin
-- Manage diseases
-- Manage vaccines
-- Configure dose schedules
-- Manage users
-- Manage immunization records
-
-### User
-- View vaccination history
-- Track upcoming doses
-- Overdue alerts
-- Explore vaccine library
+- JWT-based authentication
+- Role-based authorization
+- Password encryption using BCrypt
+- Protected API routes
+- Secure REST APIs
+- CORS configuration for production deployment
 
 ---
 
-## 👨‍💻 Author
-Ragil Raghunath
+# ☁️ Deployment Architecture
+
+| Service | Platform |
+|---|---|
+| Frontend | Vercel |
+| Backend | Render |
+| Database | Aiven MySQL |
+| Containerization | Docker |
+
+---
+
+# 📸 Screenshots
+
+## Admin Dashboard
+- Manage vaccines
+- Manage schedules
+- Manage immunization records
+
+## User Dashboard
+- Track vaccinations
+- Upcoming dose reminders
+- Vaccine history
+
+---
+
+# 🧠 Future Improvements
+
+- Email reminders for upcoming doses
+- Analytics dashboard
+- PDF vaccination reports
+- Mobile responsive enhancements
+- Search and filtering
+- Docker Compose setup
+- CI/CD GitHub Actions
+
+---
+
+# 👨‍💻 Author
+
+## Ragil K P
+
+- GitHub: https://github.com/ragil-007
+- LinkedIn: https://www.linkedin.com/in/ragil-raghunath/
+
+---
